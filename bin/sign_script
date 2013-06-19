@@ -1,0 +1,8 @@
+#!/bin/bash
+
+INSTALL_DIRECTORY="/usr/local/signed"
+tmp_file=$(mktemp)
+gpg --batch --yes --output "${tmp_file}" --clearsign $1 
+echo "#!${INSTALL_DIRECTORY}/signed" > "$1.signed"
+cat ${tmp_file} >> "$1.signed"
+

@@ -1,0 +1,26 @@
+#!/bin/bash
+# simple wrapper script that verifies applications are signed by trusted
+# parties
+
+command=$1
+shift
+
+if gpg --verify "${command}" 2>&1; then
+  while (( $# )); do
+	if test -z "${command_string}"; then
+	    command_string=("${1}")
+	else
+	    command_string+=("${1}")
+	fi
+  shift
+  done
+
+  file=$(mktemp)
+  gpg -q --decrypt $command 2>/dev/null 1>$file
+  chmod 500 $file
+  $file "${command_string[@]}"
+
+else
+	echo "signed by trusted party"
+fi
+
