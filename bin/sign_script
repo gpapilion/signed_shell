@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INSTALL_DIRECTORY=`pwd`
+INSTALL_DIRECTORY="/usr/local/bin"
 tmp_file=$(mktemp)
 gpg --batch --yes --output "${tmp_file}" --clearsign $1 
 cat << EOF > $1.signed
