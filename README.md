@@ -10,6 +10,18 @@ This was primarily inspired by a description a tool in use at Yahoo!, from a
 issue of Login;. I can no longer find the issue, and so wrote this as a
 quick and dirty subsitute.
 
+Performance
+===========
+This implementation in not intended to be ultra performant. I've not done any
+bench marking, but it shoud add significant overhead to execution.
+
+Bash
+====
+I've done a lot to make this very bash friendly. Support for source is there,
+but buy its nature is insecure. I've added a tool to verify the injected bash
+code, but its up to the user to force verification of code before sourcing the
+file
+
 Purpose
 -------
 
@@ -28,4 +40,35 @@ specific.
 The "signed" shell itself is vulnerable to modifications, and system level
 check should be put in place to manage security.
 
+Usage
+-----
 
+sign_script
+-----------
+Signing a script is as easy as running:
+`sign_script filename`
+
+This will sign the script with your default GPG key, and create a new file
+called `filename.signed`.
+
+Running a Singed Script
+-----------------------
+Scripts will execute when run like so:
+  ./script.signed
+or:
+  signed filename
+
+
+verify_bash_header
+------------------
+In order to handle source execution from bash scripts, unsigned bash is
+injected into the area above the clear-signature. verify_bash_header
+should securely check this, provided you run a signed version with the
+correct md5sum. It returns 0 if it matches and 1 if it does not.
+
+Usage would be as follows:
+  verify_bash_header <filename>
+  if [ $? -ne 0 ] ; then
+    exit 1
+  fi
+  source <filename>
