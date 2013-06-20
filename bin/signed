@@ -2,25 +2,50 @@
 # simple wrapper script that verifies applications are signed by trusted
 # parties
 
-command=$1
-shift
 
-if gpg --verify "${command}" 2>&1; then
-  while (( $# )); do
-	if test -z "${command_string}"; then
-	    command_string=("${1}")
+# Handles input from stdin :)
+if [ ! -t 0 ]; then
+	script=$(mktemp)
+	# TODO:Remove tmp script
+	while read line; do
+		echo "$line" >> $script
+	done
+	command=$script
+else
+	if test -n "$1"; then
+		command=$1
+		shift
 	else
-	    command_string+=("${1}")
+		echo "Error: requires script name"
+		exit 1
 	fi
-  shift
-  done
+fi
 
-  file=$(mktemp)
-  gpg -q --decrypt $command 2>/dev/null 1>$file
-  chmod 500 $file
-  $file "${command_string[@]}"
+# lets make sure this looks right
+if gpg --verify "${command}" 2>/dev/null; then
+	# concatting the string of arguments into a command string
+	while (( $# )); do
+		if test -z "${command_string}"; then
+			command_string=("${1}")
+		else
+			command_string+=("${1}")
+		fi
+  		shift
+	done
+
+  tmp_file=$(mktemp)
+
+  gpg -q --decrypt $command 2>/dev/null 1>$tmp_file
+
+  if test $? -ne 0; then
+	  echo "Failed to verify on decrypt"
+	  exit 1
+  fi
+
+  chmod 500 $tmp_file
+  $tmp_file "${command_string[@]}"
 
 else
-	echo "signed by trusted party"
+	echo "Error: Not signed by trusted party"
 fi
 

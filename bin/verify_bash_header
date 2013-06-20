@@ -1,0 +1,8 @@
+#!/bin/bash
+injected_bash="ee710ef0a8441b5258323e70df0f5859"
+md5sum=$(head -14 $1|tail -13| md5sum| awk '{print $1}')
+if [ "$md5sum" != "$injected_bash" ]; then
+	echo "ERROR: Someone has tampered with the injected bash"
+	exit 1;
+fi
+exit 0	

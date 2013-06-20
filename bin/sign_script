@@ -1,8 +1,24 @@
 #!/bin/bash
 
-INSTALL_DIRECTORY="/usr/local/signed"
+INSTALL_DIRECTORY=`pwd`
 tmp_file=$(mktemp)
 gpg --batch --yes --output "${tmp_file}" --clearsign $1 
-echo "#!${INSTALL_DIRECTORY}/signed" > "$1.signed"
+cat << EOF > $1.signed
+#!${INSTALL_DIRECTORY}/signed
+gpg --verify \${BASH_SOURCE} 2>/dev/null
+if [ "\$?" -eq "0" ]; then
+	gpg --decrypt \${BASH_SOURCE} 2>/dev/null | source /dev/stdin 
+else
+	echo "echo: Failed to verify"
+	exit 1
+fi
+if [[ "\${BASH_SOURCE[0]}" != "\${0}" ]]; then
+        return
+else
+	exit
+fi
+exit
+EOF
+
 cat ${tmp_file} >> "$1.signed"
 
