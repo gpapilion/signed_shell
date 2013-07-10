@@ -2,6 +2,15 @@
 # simple wrapper script that verifies applications are signed by trusted
 # parties
 
+#default GPG_OPTIONS
+GPG_VERIFY_OPTIONS=""
+GPG_DECRYPT_OPTIONS=""
+
+# Find default GPG, or hardcode if its not in path
+
+if ! GPG=$(which gpg); then
+	GPG=/usr/bin/gpg
+fi
 
 # Handles input from stdin :)
 if [ ! -t 0 ]; then
@@ -22,7 +31,7 @@ else
 fi
 
 # lets make sure this looks right
-if gpg --verify "${command}" 2>/dev/null; then
+if ${GPG} ${GPG_VERIFY_OPTIONS} --verify "${command}" 2>/dev/null; then
 	# concatting the string of arguments into a command string
 	while (( $# )); do
 		if test -z "${command_string}"; then
@@ -35,7 +44,7 @@ if gpg --verify "${command}" 2>/dev/null; then
 
   tmp_file=$(mktemp)
 
-  gpg -q --decrypt $command 2>/dev/null 1>$tmp_file
+  ${GPG} ${GPG_DECRYPT_OPTIONS} -q --decrypt $command 2>/dev/null 1>$tmp_file
 
   if test $? -ne 0; then
 	  echo "Failed to verify on decrypt"
@@ -49,3 +58,6 @@ else
 	echo "Error: Not signed by trusted party"
 fi
 
+if test -e $tmp_file; then
+	rm -rf $tmp_file
+fi

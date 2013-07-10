@@ -72,3 +72,5 @@ Usage would be as follows:
     exit 1
   fi
   source <filename>
+
+This script should be signed with your own key in order to make it secure.
