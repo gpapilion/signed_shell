@@ -10,6 +10,7 @@ This was primarily inspired by a description a tool in use at Yahoo!, from a
 issue of Login;. I can no longer find the issue, and so wrote this as a
 quick and dirty subsitute.
 
+
 Performance
 ===========
 This implementation in not intended to be ultra performant. I've not done any
@@ -28,6 +29,10 @@ Purpose
 The idea here is to limit privileged access to the "signed" program. Which
 would make some minimal guarentees that the users script has been approved by
 a trusted party.
+
+Requirements
+------------
+This requires that you have a gpg.
 
 Limitations
 -----------
@@ -73,4 +78,5 @@ Usage would be as follows:
   fi
   source <filename>
 
-This script should be signed with your own key in order to make it secure.
+This script should be signed with your own key in order to make it secure. You can sign it like so:
+  # sign_script verify_bash_header
